@@ -8,6 +8,10 @@ const Tokens = require("../modals/tokens");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+router.get("/check", getUserFromToken, (req, res) => {
+  res.status(200);
+});
+
 // signup
 
 router.post("/signup", async (req, res) => {
@@ -98,7 +102,7 @@ router.post("/logout", (req, res) => {
 
 const generateAccessToken = (user) => {
   return jwt.sign(user, process.env.access_secret_key, {
-    expiresIn: "15m",
+    expiresIn: "100m",
   });
 };
 const generateRefreshToken = (user) => {
@@ -120,6 +124,26 @@ async function createDB(userToSend) {
   });
   const x = await calanderData.save();
   const y = await timeTrackerData.save();
+}
+
+function getUserFromToken(req, res, next) {
+  try {
+    const authHeaders = req.headers["authentication"];
+    const token = authHeaders.split(" ")[1];
+
+    if (!token) {
+      return res.status(400).send({ message: "no token found" });
+    }
+    jwt.verify(token, process.env.access_secret_key, (err, user) => {
+      if (err) {
+        return res.status(400).send({ message: "invalid token" });
+      }
+      req.userId = user.id;
+      next();
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
 }
 
 module.exports = router;

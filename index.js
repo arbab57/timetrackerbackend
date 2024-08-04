@@ -14,6 +14,7 @@ db.once("open", () => console.log("Connected to db"));
 app.use(express.json());
 app.use(cors());
 
+app.use("/timetracker", routes.timeTrackerRouter);
 app.use("/calander", routes.calanderRouter);
 app.use("/users", routes.userRouter);
 
