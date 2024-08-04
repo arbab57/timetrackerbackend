@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const calanderEventSchema = new mongoose.Schema({
+  email: { type: String },
   userId: {
     type: String,
   },
