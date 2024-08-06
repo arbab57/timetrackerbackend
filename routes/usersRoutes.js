@@ -12,6 +12,13 @@ router.get("/check", getUserFromToken, (req, res) => {
   res.status(200);
 });
 
+//get userData
+router.get("/data", getUserFromToken, async (req, res) => {
+  const userId = req.userId;
+  const data = await UserData.findOne({ _id: userId });
+  res.json(data.email);
+});
+
 // signup
 
 router.post("/signup", async (req, res) => {

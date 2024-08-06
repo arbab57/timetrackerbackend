@@ -21,6 +21,7 @@ const timeEntrySchema = new mongoose.Schema({
       project: { type: String },
       tags: [{ type: String }],
       startTime: { type: Number },
+      inProgress: { type: Boolean },
     },
   },
 });

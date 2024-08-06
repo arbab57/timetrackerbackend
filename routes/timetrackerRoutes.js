@@ -16,6 +16,17 @@ router.get("/data", getUserFromToken, async (req, res) => {
   }
 });
 
+//get in progress
+router.get("/data/inprogress", getUserFromToken, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const allData = await TimeTracker.findOne({ userId: userId });
+    res.send(allData.allData.inProgress);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
 // post new entry
 
 router.post("/data", getUserFromToken, async (req, res) => {
@@ -46,12 +57,13 @@ router.post("/data", getUserFromToken, async (req, res) => {
 
 router.post("/data/progress", getUserFromToken, async (req, res) => {
   const userId = req.userId;
-  const { title, project, tags, startTime } = req.body;
+  const { title, project, tags, startTime, inProgress } = req.body;
   const newinProgress = {
     title: title,
     project: project,
     tags: tags,
     startTime: startTime,
+    inProgress: inProgress,
   };
   const result = await TimeTracker.updateOne(
     { userId: userId },
@@ -59,8 +71,8 @@ router.post("/data/progress", getUserFromToken, async (req, res) => {
   );
   const ans = await TimeTracker.findOne({ userId: userId });
 
-  res.send(ans);
-  // res.sendStatus(200);
+  // res.send(ans);
+  res.sendStatus(200);
 });
 
 //del inprogress from db
@@ -84,6 +96,7 @@ router.post("/data", getUserFromToken, async (req, res) => {
 function getUserFromToken(req, res, next) {
   try {
     const authHeaders = req.headers["authentication"];
+
     const token = authHeaders.split(" ")[1];
 
     if (!token) {
