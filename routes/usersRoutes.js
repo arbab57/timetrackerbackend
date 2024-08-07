@@ -25,16 +25,22 @@ router.post("/signup", async (req, res) => {
   try {
     const { email, password } = req.body;
     const isInUse = await UserData.findOne({ email: email });
+    if (!email || !password) {
+      return res.status(401).send({ message: "no password or email" });
+    }
+
     if (isInUse !== null) {
       return res
         .status(401)
         .send({ message: "email aleady has an acount, login instead" });
     }
+
     const hashedPassowrd = await bcrypt.hash(password, 10);
     const newUser = new UserData({
       email: email,
       password: hashedPassowrd,
     });
+
     const userToSend = await newUser.save();
     createDB(userToSend);
     res.sendStatus(201);

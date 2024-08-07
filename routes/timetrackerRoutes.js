@@ -3,6 +3,8 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const TimeTracker = require("../modals/timetrackerModel");
+const timetrackerModel = require("../modals/timetrackerModel");
+const { default: mongoose } = require("mongoose");
 
 // get all data
 
@@ -47,10 +49,26 @@ router.post("/data", getUserFromToken, async (req, res) => {
       { userId: userId },
       { $push: { "allData.data": newObject } }
     );
-    res.sendStatus(201);
+    res.status(201).json(result);
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
+});
+
+//delete an entry
+router.delete("/data", getUserFromToken, async (req, res) => {
+  const userId = req.userId;
+  const entryToDelId = req.body.id;
+  const allData = await TimeTracker.updateOne(
+    { userId: userId },
+    {
+      $pull: {
+        "allData.data": { _id: entryToDelId },
+      },
+    }
+  );
+
+  res.sendStatus(200);
 });
 
 // post in progress entry to db
@@ -85,10 +103,6 @@ router.post("/data/clear/progress", getUserFromToken, async (req, res) => {
   );
 
   res.sendStatus(200);
-});
-
-router.post("/data", getUserFromToken, async (req, res) => {
-  const userId = req.userId;
 });
 
 // middleware to authenticate tokens
