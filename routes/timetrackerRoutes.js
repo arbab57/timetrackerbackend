@@ -71,6 +71,21 @@ router.delete("/data", getUserFromToken, async (req, res) => {
   res.sendStatus(200);
 });
 
+//update an entry
+router.put("/data", getUserFromToken, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { updatedEntry, entryId } = req.body;
+    const data = await TimeTracker.updateOne(
+      { userId: userId, "allData.data._id": entryId },
+      { $set: { "allData.data.$": updatedEntry } }
+    );
+    res.status(201).json({ msg: "updated" });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+});
+
 // post in progress entry to db
 
 router.post("/data/progress", getUserFromToken, async (req, res) => {
@@ -110,7 +125,6 @@ router.post("/data/clear/progress", getUserFromToken, async (req, res) => {
 function getUserFromToken(req, res, next) {
   try {
     const authHeaders = req.headers["authentication"];
-
     const token = authHeaders.split(" ")[1];
 
     if (!token) {
