@@ -3,22 +3,19 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const calanderModel = require("../modals/calanderModel");
+const CalenderControl = require("../controllers/calenderControl")
 
-router.get("/data", getUserThroughToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const data = await calanderModel.findOne({ userId: userId });
-    res.json(data.data);
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-});
+router.get("/data", getUserThroughToken, CalenderControl.getData);
+router.post("/data/add-entry", getUserThroughToken, CalenderControl.addEntry);
+router.delete("/data/del-entry/:entryId", getUserThroughToken, CalenderControl.delEntry);
+
+
+
 
 function getUserThroughToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers["authentication"];
   const access_token = authHeader && authHeader.split(" ")[1];
-
-  if (access_token == null) {
+  if (access_token === null) {
     res.status(401).send({ message: "no token provided" });
     return;
   }
